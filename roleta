@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roleta do Bingo de Aniversário do Caio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --cor-fundo: #1a1a2e; --cor-caixa: #16213e; --cor-texto: #e94560;
+            --cor-texto-secundario: #f0f0f0; --cor-botao: #00f5d4; --cor-botao-texto: #16213e;
+            --sombra: rgba(0, 245, 212, 0.4);
+            --cor-verde: #2ecc71; --cor-amarelo: #f1c40f; --cor-vermelho: #e74c3c;
+        }
+        body {
+            font-family: 'Poppins', sans-serif; background: var(--cor-fundo); color: var(--cor-texto-secundario);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            min-height: 100vh; padding: 20px; text-align: center;
+        }
+        .container, .confirmation-section, .info-box {
+            background-color: var(--cor-caixa); padding: 30px 40px; border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4); max-width: 600px; width: 100%;
+            border: 2px solid var(--cor-botao); position: relative; margin-bottom: 20px;
+        }
+        h1 { font-family: 'Montserrat', sans-serif; color: var(--cor-texto); font-size: 2.5rem; margin-bottom: 10px; }
+        h2 { font-size: 1.5rem; margin-bottom: 20px; font-weight: 400; color: var(--cor-texto); }
+        h3 { color: var(--cor-botao); margin-bottom: 10px; font-size: 1.2rem;}
+        .instrucoes { font-size: 0.9rem; margin-bottom: 25px; opacity: 0.8; }
+        #resultado {
+            min-height: 120px; display: flex; justify-content: center; align-items: center;
+            font-size: 1.8rem; font-weight: 700; color: var(--cor-botao); margin: 20px 0;
+            padding: 15px; border-radius: 10px; background-color: rgba(0,0,0,0.2);
+            transition: transform 0.3s ease; line-height: 1.3;
+        }
+        #girarBtn {
+            font-family: 'Montserrat', sans-serif; background-color: var(--cor-botao); color: var(--cor-botao-texto);
+            border: none; padding: 15px 30px; font-size: 1.5rem; font-weight: 700;
+            border-radius: 50px; cursor: pointer; transition: all 0.3s ease; margin-top: 10px;
+        }
+        #girarBtn:hover { transform: scale(1.05); box-shadow: 0 5px 20px var(--sombra); }
+        #girarBtn:disabled { background-color: #555; color: #999; cursor: not-allowed; transform: none; box-shadow: none; }
+        #girosRestantes, #countdown { margin-top: 20px; font-size: 1rem; font-weight: 600; }
+        .moderator-btn {
+            position: absolute; bottom: 10px; right: 10px; background: none; border: 1px solid var(--cor-texto);
+            color: var(--cor-texto); padding: 5px 10px; font-size: 0.7rem; border-radius: 5px;
+            cursor: pointer; opacity: 0.5; transition: all 0.3s;
+        }
+        .moderator-btn:hover { opacity: 1; }
+        .moderator-btn.moderator-active { opacity: 1; color: var(--cor-botao); border-color: var(--cor-botao); box-shadow: 0 0 10px var(--sombra); }
+        #modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.8); display: flex; justify-content: center; align-items: center;
+            z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        #modal-overlay.show { opacity: 1; visibility: visible; }
+        .modal-content {
+            background-color: var(--cor-caixa); padding: 30px; border-radius: 15px; max-width: 500px;
+            width: 90%; border: 2px solid var(--cor-texto); transform: scale(0.9); transition: transform 0.3s ease;
+        }
+        #modal-overlay.show .modal-content { transform: scale(1); }
+        .modal-content h3 { color: var(--cor-texto); font-size: 1.8rem; margin-bottom: 15px; }
+        .modal-content p { font-size: 1rem; line-height: 1.6; margin-bottom: 25px; }
+        #closeModalBtn {
+            background-color: var(--cor-texto); color: var(--cor-texto-secundario); border: none; padding: 12px 25px;
+            font-size: 1rem; font-weight: 600; border-radius: 30px; cursor: pointer; transition: transform 0.2s ease;
+        }
+        #closeModalBtn:hover { transform: scale(1.05); }
+        #confirmationForm { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        #confirmationForm input, #confirmationForm select {
+            padding: 10px; border-radius: 8px; border: 2px solid #555; background: #333; color: white;
+            font-size: 1rem;
+        }
+        #confirmationForm input { flex: 2; min-width: 150px; }
+        #confirmationForm select { flex: 3; min-width: 150px; }
+        #confirmationForm button {
+            flex: 1; background: var(--cor-texto); color: white; border: none;
+            border-radius: 8px; font-weight: 600; cursor: pointer; transition: transform 0.2s;
+            min-width: 100px;
+        }
+        #confirmationForm button:hover { transform: scale(1.05); }
+        #confirmationTable { width: 100%; border-collapse: collapse; }
+        #confirmationTable th, #confirmationTable td { padding: 12px; border-bottom: 1px solid #444; text-align: left;}
+        #confirmationTable th { color: var(--botao-cor); }
+        .status-cell span { padding: 5px 10px; border-radius: 15px; color: white; font-weight: 600; }
+        .status-vou { background-color: var(--cor-verde); }
+        .status-duvida { background-color: var(--cor-amarelo); }
+        .status-nao-irei { background-color: var(--cor-vermelho); }
+        .delete-btn {
+            background: none; border: none; font-size: 1.2rem; cursor: pointer;
+            opacity: 0.7; transition: all 0.2s; display: none;
+        }
+        .delete-btn:hover { opacity: 1; transform: scale(1.2); }
+        .action-header { display: none; }
+        .moderator-view .delete-btn, .moderator-view .action-header { display: table-cell; }
+        .info-box { border-color: #555; }
+        .info-box p { font-size: 0.9rem; opacity: 0.8; line-height: 1.6; }
+    </style>
+</head>
+<body>
+    <div id="modal-overlay" class="show">
+        <div class="modal-content">
+            <h3>Bem-vindo ao Bingo Trash do Caio!</h3>
+            <p>A regra é simples: cada convidado deve levar um prêmio inútil, aleatório ou cafona — quanto mais fútil e inesperado, melhor. O bingo acontece normalmente e os ganhadores recebem um desses "tesouros" aleatoriamente. Use a roleta se precisar de inspiração e não se esqueça de marcar sua presença na lista abaixo!</p>
+            <button id="closeModalBtn">Entendido!</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <h1>Roleta do Bingo</h1>
+        <p class="instrucoes">Você tem até 10 giros a cada 5 minutos. Boa sorte!</p>
+        <h2>Precisa de ideias para o que levar?</h2>
+        <div id="resultado">Sorteie um item!</div>
+        <button id="girarBtn">Girar a roleta</button>
+        <p id="girosRestantes"></p>
+        <p id="countdown"></p>
+        <button id="moderatorBtn" class="moderator-btn">Modo Moderador</button>
+    </div>
+
+    <div class="confirmation-section">
+        <h2>Lista de (des)confirmades</h2>
+        <form id="confirmationForm">
+            <input type="text" id="nameInput" placeholder="Seu nome" required>
+            <select id="statusSelect">
+                <option value="vou">✅ Vou</option>
+                <option value="duvida">❓ Dúvida</option>
+                <option value="nao-irei">❌ Não irei</option>
+            </select>
+            <button type="submit">Marcar</button>
+        </form>
+        <table id="confirmationTable">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Status</th>
+                    <th class="action-header">Ação</th>
+                </tr>
+            </thead>
+            <tbody id="confirmationTbody">
+                <tr><td colspan="3">Carregando lista...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="info-box">
+        <h3>Lembrete das Regras</h3>
+        <p>No Bingo Trash do Caio, cada convidado deve levar um prêmio inútil, aleatório ou cafona — quanto mais fútil e inesperado, melhor. O bingo acontece normalmente e as pessoas que ganharem vão receber aleatoriamente algum prêmio ofertado.</p>
+    </div>
+
+    <script>
+        const SHEETDB_URL = 'https://sheetdb.io/api/v1/hr3c3o2oqxzmo';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const confirmationForm = document.getElementById('confirmationForm');
+            const nameInput = document.getElementById('nameInput');
+            const statusSelect = document.getElementById('statusSelect');
+            const confirmationTbody = document.getElementById('confirmationTbody');
+            const formButton = confirmationForm.querySelector('button');
+            const confirmationSection = document.querySelector('.confirmation-section');
+
+            async function loadConfirmations() {
+                try {
+                    const response = await fetch(SHEETDB_URL);
+                    if (!response.ok) throw new Error('Falha ao carregar a lista.');
+                    const data = await response.json();
+                    
+                    confirmationTbody.innerHTML = '';
+                    
+                    const actionHeader = document.querySelector('.action-header');
+                    if(isModerator) actionHeader.style.display = 'table-cell';
+                    else actionHeader.style.display = 'none';
+
+                    if (data.length > 0) {
+                        data.forEach(confirmation => {
+                            if(!confirmation.nome) return;
+                            
+                            const row = document.createElement('tr');
+                            
+                            row.innerHTML = `
+                                <td>${confirmation.nome}</td>
+                                <td class="status-cell">
+                                    <span class="status-${confirmation.status}">${confirmation.status_texto}</span>
+                                </td>
+                            `;
+
+                            if(isModerator){
+                                const actionCell = document.createElement('td');
+                                const deleteBtn = document.createElement('button');
+                                deleteBtn.textContent = '🗑️';
+                                deleteBtn.classList.add('delete-btn');
+                                deleteBtn.onclick = () => deleteConfirmation(confirmation.nome);
+                                actionCell.appendChild(deleteBtn);
+                                row.appendChild(actionCell);
+                            }
+
+                            confirmationTbody.appendChild(row);
+                        });
+                    } else {
+                        confirmationTbody.innerHTML = `<tr><td colspan="${isModerator ? 3 : 2}">Ninguém marcou presença ainda. Seja o primeiro!</td></tr>`;
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar a lista:', error);
+                    confirmationTbody.innerHTML = `<tr><td colspan="${isModerator ? 3 : 2}">Erro ao carregar a lista.</td></tr>`;
+                }
+            }
+            
+            async function deleteConfirmation(name){
+                if(!confirm(`Tem certeza que deseja apagar a presença de "${name}"?`)) return;
+
+                try {
+                    const encodedName = encodeURIComponent(name);
+                    const response = await fetch(`${SHEETDB_URL}/nome/${encodedName}`, {
+                        method: 'DELETE'
+                    });
+                    if (!response.ok) throw new Error('Falha ao apagar.');
+                    await loadConfirmations();
+                } catch(error){
+                    console.error('Erro ao apagar:', error);
+                    alert('Não foi possível apagar a presença.');
+                }
+            }
+
+            confirmationForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const name = nameInput.value.trim();
+                const status = statusSelect.value;
+                const statusText = statusSelect.options[statusSelect.selectedIndex].text;
+                if (!name) return;
+                formButton.disabled = true; formButton.textContent = 'Enviando...';
+                try {
+                    // CÓDIGO DE ENVIO SIMPLIFICADO
+                    await fetch(SHEETDB_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            data: [{
+                                'nome': name,
+                                'status': status,
+                                'status_texto': statusText
+                            }]
+                        })
+                    });
+                    nameInput.value = '';
+                    await loadConfirmations();
+                } catch (error) {
+                    console.error('Erro ao salvar:', error);
+                    alert('Houve um erro ao salvar sua presença.');
+                } finally {
+                    formButton.disabled = false; formButton.textContent = 'Marcar';
+                }
+            });
+
+            // --- LÓGICA DA ROLETA ---
+            const itens = ["Caneca “#DeusNoComando”", "Porta-retrato com glitter descascado", "Almofada emoji apaixonado", "Camiseta “Nunca desista dos seus sonhos”", "Chapéu de cowboy de plástico rosa", "Cinto com fivela de águia gigante", "Prato decorativo de galinha", "Abajur em formato de golfinho", "Caneca com propaganda de farmácia", "Copo com logo de cervejaria de boteco", "Prato com estampa de paisagem rural", "Quadro de pôr do sol comprado em feira", "Toalha de mesa de frutas plastificada", "Almofada bordada “Lar doce lar”", "Espelho em formato de coração vermelho", "Estátua de anjo dourado descascando", "Cortina com estampa de zebra", "Tapete com frase “Bem-vindo”", "Copo em formato de bota", "Relógio de parede com desenho de cavalo", "Caneta de posto de gasolina", "Squeeze de banco", "Chaveiro de construtora", "Régua de campanha política", "Agenda 2022 de empresa qualquer", "Mousepad de seguradora", "Sacola ecológica furada", "Ímã de pizzaria fechada", "Bloquinho de “Workshop 2018”", "Boné “Feira Agro 2015”", "Carteirinha de feira de emprego", "Squeeze de político", "Copo de plástico “Semana SIPAT”", "Medalha de “Dia da Segurança no Trabalho”", "Adesivo “Sou cliente OuroCard”", "Pen drive promocional que não funciona", "Camiseta de empresa de telecom", "Cordão de crachá de banco", "Almofadinha antistress com logo", "Bolsa de congresso de contabilidade", "Copo de festa infantil 2016", "Álbum da Copa 2014 incompleto", "Pelúcia sem um olho", "Chaveiro de formatura do 3º ano", "Carta de amor da adolescência", "CD pirata “Hits 2002”", "DVD gospel de camelô", "Pôster amassado de boyband", "Estojo rabiscado de escola", "Pulseira de festival de 2015", "Camiseta de colônia de férias", "Caderno com só duas páginas escritas", "Autógrafo de um artista desconhecido", "Adesivo da Turma do Balão Mágico", "Álbum de figurinhas de novela incompleto", "Moeda comemorativa de plástico", "Boneco de posto pequeno sem ar", "Relicário sem foto dentro", "Bilhete de excursão da escola", "Mini troféu de campeonato escolar", "Miojo sem sachê", "Ketchup pela metade", "Refrigerante sem gás", "Bala 7 Belo murcho", "Biscoito cream cracker aberto", "Sopa de pacote vencendo", "Pote de maionese vazio", "Caixa de chá de boldo esquecida", "Salgadinho de milho murcho", "Tempero pronto de mercado", "Barra de cereal mole", "Gelatina sem sabor", "Um pacote de açúcar aberto", "Saquinho de sal de churrasco", "Balas sortidas que só sobraram verdes", "Pipoca doce já murcha", "Amendoim de festa ressecado", "Bala de casamento velha", "Pacote de café quase vazio", "Água com gás sem gás", "Lâmpada queimada", "Fone de ouvido com um lado", "Carregador quebrado", "Teclado sem teclas", "Ventilador sem hélice", "Relógio parado", "Panela sem cabo", "Chave que não abre nada", "Mouse sem clique", "Pen drive queimado", "Extensão elétrica sem fio", "Ferro de passar sem cabo", "Antena de TV antiga", "Telefone de disco sem fio", "Pilhas velhas", "Microfone de karaokê quebrado", "Lanterna sem pilha", "Caixa de som chiando", "TV de tubo em miniatura", "Gravador de fita sem fita", "Gravata neon", "Óculos escuros riscados", "Crocs falsificado", "Bolsa descascada", "Chapéu Panamá falso", "Pochete dos anos 90", "Camiseta “I ♥ New York” falsificada", "Jaqueta jeans com spikes", "Saia de oncinha neon", "Camiseta com foto do Luan Santana 2010", "Cachecol de lã neon", "Sapato social com sola descolada", "Camiseta de corrida 2018", "Boné “Free Fire”", "Regata com frase motivacional", "Tênis piscante sem bateria", "Sandália plataforma velha", "Camiseta com estampa de política", "Lenço de oncinha", "Camiseta “Topzera”", "Porta-sabonete descascado", "Almofada murcha", "Tapete de banheiro gasto", "Pano de prato florido", "Colher de pau queimada", "Copo de requeijão sem tampa", "Garrafa pet usada como jarra", "Porta-caneta de lata de milho", "Cinzeiro rachado", "Descascador de batata cego", "Vassoura sem cabo", "Rodo de banheiro torto", "Balde furado", "Panela de pressão sem válvula", "Forma de bolo amassada", "Escorredor de pratos rachado", "Jarro sem alça", "Jogo americano de plástico manchado", "Saleiro sem tampa", "Cumbuca rachada", "Bola de árvore de Natal riscada", "Chapéu de festa junina", "Vela de aniversário usada", "Restos de serpentina", "Confete em saquinho", "Enfeite de casamento", "Fantasia rasgada de Halloween", "Tiara de coelhinha", "Caneca “Dia das Mães”", "Apito de carnaval quebrado", "Máscara de carnaval rachada", "Estrela de árvore de Natal torta", "Presépio faltando peças", "Bandeirinha junina rasgada", "Chapéu de palha gasto", "Pisca-pisca queimado", "Lembrancinha de batizado", "Pirulito gigante de festa vencido", "Óculos 2020 de Réveillon", "Fantasia de super-herói mal costurada", "Pedra embrulhada em presente", "Revista Caras 2007", "Figurinha repetida", "Revista de palavras cruzadas sem folhas", "Dominó faltando peças", "Dado gigante sem par", "Cebola embrulhada", "Sabonete artesanal mal feito", "Guardanapos usados", "Pé de tênis sozinho", "Colher pintada de dourado", "Pregador de roupa dourado", "Pote de sorvete vazio", "Vela aromática sem cheiro", "Plantinha de plástico horrorosa", "Caderninho sem páginas", "Apito de juiz que não apita", "Bolinha de tênis furada", "Concha de praia quebrada", "Revistinha erótica dos anos 90", "Álbum de sertanejo universitário pirata", "Canudo reutilizável torto", "Garrafa de areia colorida", "Chaveiro em formato de chinelo", "Capa de celular sem celular", "Pulseira de borracha quebrada", "Uma fronha sozinha", "Um sabonete hotel usado", "Um brinquedo do McLanche Feliz antigo", "Um isqueiro sem gás", "Uma vela de 15 anos usada", "Um travesseiro murcho", "Um controle remoto de DVD", "Um bilhete premiado vencido", "Uma caixa de fósforo quase vazia", "Um baralho com só 5 cartas", "Um par de havaianas diferentes", "Uma colher de plástico gigante", "Um apito infantil rachado", "Um pote com tampa errada"];
+            const girarBtn = document.getElementById('girarBtn');
+            const resultadoDiv = document.getElementById('resultado');
+            const girosRestantesP = document.getElementById('girosRestantes');
+            const countdownP = document.getElementById('countdown');
+            const modalOverlay = document.getElementById('modal-overlay');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const moderatorBtn = document.getElementById('moderatorBtn'); 
+            const MAX_SPINS = 10; 
+            const COOLDOWN_PERIOD_MS = 5 * 60 * 1000;
+            const RECENT_ITEMS_LIMIT = 30;
+            let countdownInterval;
+            let isModerator = JSON.parse(localStorage.getItem('isModerator')) || false;
+            let recentItens = JSON.parse(localStorage.getItem('recentItens')) || [];
+            if (!localStorage.getItem('bingoModalVisto')) { modalOverlay.classList.add('show'); }
+            closeModalBtn.addEventListener('click', () => { modalOverlay.classList.remove('show'); localStorage.setItem('bingoModalVisto', 'true'); });
+            moderatorBtn.addEventListener('click', () => {
+                if (isModerator) {
+                    isModerator = false; localStorage.setItem('isModerator', 'false');
+                    alert("Modo moderador desativado.");
+                } else {
+                    const password = prompt("Digite a senha do moderador:");
+                    if (password === "antoniopenha") {
+                        isModerator = true; localStorage.setItem('isModerator', 'true');
+                        alert("Modo moderador ativado!");
+                    } else if (password !== null) { alert("Senha incorreta!"); }
+                }
+                atualizarUI();
+                loadConfirmations();
+            });
+            function verificarEstadoDosGiros() {
+                if (isModerator) { atualizarUI(); return; }
+                const agora = new Date().getTime();
+                let spinData = JSON.parse(localStorage.getItem('spinData'));
+                if (!spinData || agora >= spinData.nextResetTime) { spinData = { count: MAX_SPINS, nextResetTime: 0 }; }
+                localStorage.setItem('spinData', JSON.stringify(spinData));
+                atualizarUI();
+            }
+            function atualizarUI() {
+                if (isModerator) {
+                    girosRestantesP.textContent = "Modo moderador: Giros ilimitados!";
+                    countdownP.style.display = 'none'; girarBtn.disabled = false;
+                    moderatorBtn.textContent = 'Moderador (ON)';
+                    moderatorBtn.classList.add('moderator-active');
+                    confirmationSection.classList.add('moderator-view');
+                    if (countdownInterval) clearInterval(countdownInterval);
+                    return;
+                }
+                moderatorBtn.textContent = 'Modo Moderador';
+                moderatorBtn.classList.remove('moderator-active');
+                confirmationSection.classList.remove('moderator-view');
+                const spinData = JSON.parse(localStorage.getItem('spinData'));
+                girosRestantesP.textContent = `Você tem ${spinData.count} giro(s) restante(s).`;
+                if (spinData.count <= 0 && spinData.nextResetTime > 0) {
+                    girarBtn.disabled = true;
+                    countdownP.style.display = 'block';
+                    iniciarContador(spinData.nextResetTime);
+                } else {
+                    girarBtn.disabled = false;
+                    countdownP.style.display = 'none';
+                    if (countdownInterval) clearInterval(countdownInterval);
+                }
+            }
+            function iniciarContador(tempoFinal) {
+                if (countdownInterval) clearInterval(countdownInterval);
+                countdownInterval = setInterval(() => {
+                    const agora = new Date().getTime();
+                    const distancia = tempoFinal - agora;
+                    if (distancia < 0) {
+                        clearInterval(countdownInterval);
+                        countdownP.textContent = "";
+                        verificarEstadoDosGiros();
+                        return;
+                    }
+                    const totalSegundos = Math.floor(distancia / 1000);
+                    const minutos = Math.floor(totalSegundos / 60);
+                    const segundos = totalSegundos % 60;
+                    const segundosFormatados = segundos < 10 ? '0' + segundos : segundos;
+                    countdownP.textContent = `Calma! Volte em ${minutos}m ${segundosFormatados}s para girar de novo!`;
+                }, 1000);
+            }
+            girarBtn.addEventListener('click', () => {
+                let availableItens = itens.filter(item => !recentItens.includes(item));
+                if (availableItens.length === 0) { recentItens = []; availableItens = itens; }
+                const itemSorteado = availableItens[Math.floor(Math.random() * availableItens.length)];
+                recentItens.push(itemSorteado);
+                if (recentItens.length > RECENT_ITEMS_LIMIT) { recentItens.shift(); }
+                localStorage.setItem('recentItens', JSON.stringify(recentItens));
+                resultadoDiv.style.transform = 'scale(0.8)';
+                setTimeout(() => {
+                    resultadoDiv.textContent = itemSorteado;
+                    resultadoDiv.style.transform = 'scale(1)';
+                }, 150);
+                if (!isModerator) {
+                    let spinData = JSON.parse(localStorage.getItem('spinData'));
+                    const agora = new Date().getTime();
+                    if (spinData.count > 0) {
+                        if (spinData.nextResetTime === 0) {
+                            spinData.nextResetTime = agora + COOLDOWN_PERIOD_MS;
+                        }
+                        spinData.count--;
+                        localStorage.setItem('spinData', JSON.stringify(spinData));
+                        atualizarUI();
+                    }
+                }
+            });
+            
+            // --- INICIALIZAÇÃO ---
+            atualizarUI();
+            verificarEstadoDosGiros();
+            loadConfirmations();
+        });
+    </script>
+</body>
+</html>
